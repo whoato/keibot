@@ -47,7 +47,7 @@ class AttendanceCog(commands.Cog, name="출석"):
         embed.set_thumbnail(url=interaction.user.display_avatar.url)
         await interaction.followup.send(embed=embed)
 
-    @app_commands.command(name="선생님 정보", description="선생님의 출석 현황을 확인합니다.")
+    @app_commands.command(name="내정보", description="선생님의 출석 현황을 확인합니다.")
     async def my_info(self, interaction: discord.Interaction) -> None:
         await interaction.response.defer(ephemeral=True)
 
