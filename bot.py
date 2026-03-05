@@ -16,6 +16,7 @@ logger = logging.getLogger("kei")
 COGS = [
     "cogs.attendance",
     "cogs.admin",
+    "cogs.greet",
 ]
 
 
