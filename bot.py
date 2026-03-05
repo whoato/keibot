@@ -1,5 +1,6 @@
 import asyncio
 import logging
+import sys
 
 import discord
 from discord.ext import commands
@@ -21,9 +22,10 @@ COGS = [
 
 
 class Kei(commands.Bot):
-    def __init__(self) -> None:
+    def __init__(self, sync: bool = False) -> None:
         intents = discord.Intents.default()
         super().__init__(command_prefix="!", intents=intents)
+        self._sync = sync
 
     async def setup_hook(self) -> None:
         await init_db()
@@ -33,8 +35,11 @@ class Kei(commands.Bot):
             await self.load_extension(cog)
             logger.info(f"Cog 로드: {cog}")
 
-        await self.tree.sync()
-        logger.info("슬래시 커맨드 글로벌 동기화 완료 (최대 1시간 소요)")
+        if self._sync:
+            await self.tree.sync()
+            logger.info("슬래시 커맨드 글로벌 동기화 완료 (최대 1시간 소요)")
+        else:
+            logger.info("슬래시 커맨드 동기화 생략 (sync 모드 아님)")
 
     async def on_ready(self) -> None:
         logger.info(f"케이(Kei) 봇 준비 완료 | {self.user} (ID: {self.user.id})")
@@ -47,7 +52,8 @@ class Kei(commands.Bot):
 
 
 async def main() -> None:
-    async with Kei() as bot:
+    sync = "--sync" in sys.argv
+    async with Kei(sync=sync) as bot:
         await bot.start(config.DISCORD_TOKEN)
 
 
