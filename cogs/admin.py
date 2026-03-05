@@ -11,7 +11,7 @@ class AdminCog(commands.Cog, name="관리자"):
     def __init__(self, bot: commands.Bot) -> None:
         self.bot = bot
 
-    @app_commands.command(name="출석초기화", description="[관리자] 특정 유저의 출석 데이터를 초기화합니다.")
+    @app_commands.command(name="출석초기화", description="[관리자] 특정 선생님의 출석 데이터를 초기화합니다.")
     @app_commands.describe(member="초기화할 유저를 선택하세요.")
     @app_commands.default_permissions(administrator=True)
     async def reset_attendance(

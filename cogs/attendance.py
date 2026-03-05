@@ -25,14 +25,14 @@ class AttendanceCog(commands.Cog, name="출석"):
         if result.already_attended:
             embed = discord.Embed(
                 title="이미 출석했습니다",
-                description="오늘은 이미 출석 체크를 완료했습니다. 내일 다시 출석해 주세요!",
+                description="오늘은 이미 출석하셨네요. 내일 다시 출석해 주세요!",
                 color=discord.Color.orange(),
             )
             await interaction.followup.send(embed=embed)
             return
 
         user = result.user
-        desc = f"**+{result.points_earned} 포인트** 획득!"
+        desc = f"**+{result.points_earned} 포인트**를 획득하셨습니다"
 
         if result.is_streak_bonus:
             desc += f"\n**연속 {result.streak}일 보너스! +{config.STREAK_BONUS_POINTS} 포인트 추가 지급!**"
@@ -40,14 +40,14 @@ class AttendanceCog(commands.Cog, name="출석"):
         desc += f"\n\n현재 포인트: **{user.points}**\n연속 출석: **{result.streak}일**\n총 출석: **{user.total_days}일**"
 
         embed = discord.Embed(
-            title=f"{interaction.user.display_name}님, 출석 완료!",
+            title=f"{interaction.user.display_name} 선생님, 출석 완료!",
             description=desc,
             color=discord.Color.green(),
         )
         embed.set_thumbnail(url=interaction.user.display_avatar.url)
         await interaction.followup.send(embed=embed)
 
-    @app_commands.command(name="내정보", description="내 출석 현황을 확인합니다.")
+    @app_commands.command(name="선생님 정보", description="선생님의 출석 현황을 확인합니다.")
     async def my_info(self, interaction: discord.Interaction) -> None:
         await interaction.response.defer(ephemeral=True)
 
@@ -74,7 +74,7 @@ class AttendanceCog(commands.Cog, name="출석"):
         embed.add_field(name="마지막 출석", value=last, inline=False)
         await interaction.followup.send(embed=embed)
 
-    @app_commands.command(name="랭킹", description="서버 출석 랭킹 상위 10명을 확인합니다.")
+    @app_commands.command(name="랭킹", description="서버 출석 랭킹 상위 10명의 선생님들을 확인합니다.")
     async def ranking(self, interaction: discord.Interaction) -> None:
         await interaction.response.defer(ephemeral=False)
 
@@ -83,7 +83,7 @@ class AttendanceCog(commands.Cog, name="출석"):
         if not users:
             embed = discord.Embed(
                 title="출석 랭킹",
-                description="아직 출석한 유저가 없습니다.",
+                description="아직 출석한 선생님이 없습니다.",
                 color=discord.Color.gold(),
             )
             await interaction.followup.send(embed=embed)
