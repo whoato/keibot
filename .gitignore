@@ -1,0 +1,17 @@
+# 환경변수 (시크릿 포함)
+.env
+
+# DB 파일
+*.db
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.venv/
+venv/
+env/
+
+# IDE
+.vscode/
+.idea/
