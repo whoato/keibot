@@ -176,6 +176,43 @@ def _get_greeting_ja(hour: int) -> str:
         return random.choice(_GREETINGS_JA_NIGHT)
 
 
+_GOODNIGHT_KO = [
+    (
+        "……벌써 자려고요, 선생님?\n"
+        "잘 자요. 내일도 무리하지 마세요.\n"
+        "……푹 쉬어요. 그게 저한테도 편하니까요."
+    ),
+    (
+        "이 시간에 자는 건 좋은 습관이에요, 선생님.\n"
+        "양치질은 했죠? ……잘 자요.\n"
+        "내일도 별일 없길 바라요. 뭐, 그냥 하는 말이에요."
+    ),
+    (
+        "……잘 자요, 선생님.\n"
+        "좋은 꿈 꾸길 바라요. 딱히 바라는 건 아니에요.\n"
+        "……그냥, 잘 자라고요."
+    ),
+]
+
+_GOODNIGHT_JA = [
+    (
+        "……もう寝るんですか、先生？\n"
+        "おやすみなさい。明日も無理しないでくださいね。\n"
+        "……ゆっくり休んでください。その方が私も楽なので。"
+    ),
+    (
+        "この時間に寝るのは良い習慣ですよ、先生。\n"
+        "歯磨きはしましたよね？……おやすみなさい。\n"
+        "明日も何事もないといいですね。まぁ、ただそう言ってるだけです。"
+    ),
+    (
+        "……おやすみなさい、先生。\n"
+        "良い夢を。別に願ってるわけじゃないです。\n"
+        "……ただ、おやすみって言いたかっただけです。"
+    ),
+]
+
+
 class GreetCog(commands.Cog, name="인사"):
     def __init__(self, bot: commands.Bot) -> None:
         self.bot = bot
@@ -202,6 +239,30 @@ class GreetCog(commands.Cog, name="인사"):
 
         embed = discord.Embed(
             description=greeting,
+            color=discord.Color.from_rgb(180, 210, 230),
+        )
+        embed.set_author(
+            name="ケイ",
+            icon_url=self.bot.user.display_avatar.url,
+        )
+        await interaction.response.send_message(embed=embed)
+
+    @app_commands.command(name="잘자", description="케이에게 잘 자라고 인사합니다.")
+    async def goodnight(self, interaction: discord.Interaction) -> None:
+        embed = discord.Embed(
+            description=random.choice(_GOODNIGHT_KO),
+            color=discord.Color.from_rgb(180, 210, 230),
+        )
+        embed.set_author(
+            name="케이",
+            icon_url=self.bot.user.display_avatar.url,
+        )
+        await interaction.response.send_message(embed=embed)
+
+    @app_commands.command(name="お休み", description="ケイにおやすみなさいと挨拶します。")
+    async def goodnight_ja(self, interaction: discord.Interaction) -> None:
+        embed = discord.Embed(
+            description=random.choice(_GOODNIGHT_JA),
             color=discord.Color.from_rgb(180, 210, 230),
         )
         embed.set_author(
