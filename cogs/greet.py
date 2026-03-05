@@ -176,16 +176,52 @@ def _get_greeting_ja(hour: int) -> str:
         return random.choice(_GREETINGS_JA_NIGHT)
 
 
-_GOODNIGHT_KO = [
+_GOODNIGHT_KO_MORNING = [
     (
-        "……벌써 자려고요, 선생님?\n"
-        "잘 자요. 내일도 무리하지 마세요.\n"
-        "……푹 쉬어요. 그게 저한테도 편하니까요."
+        "……아침부터 자려고요, 선생님?\n"
+        "뭐, 밤새 일하셨다면 쉬어야죠. 어쩔 수 없네요.\n"
+        "……푹 자요. 일어나면 밥부터 먹고요."
     ),
     (
-        "이 시간에 자는 건 좋은 습관이에요, 선생님.\n"
-        "양치질은 했죠? ……잘 자요.\n"
+        "이 시간에 자는 건 좀 아깝지 않아요?\n"
+        "……뭐, 피곤하면 자야죠. 억지로 버티는 건 아무 의미 없으니까요.\n"
+        "잘 자요, 선생님. 일어나면 연락해요."
+    ),
+    (
+        "밤새 뭘 하신 거예요, 선생님……\n"
+        "잔소리는 나중에 할게요. 지금은 그냥 자요.\n"
+        "……잘 자요."
+    ),
+]
+
+_GOODNIGHT_KO_AFTERNOON = [
+    (
+        "낮잠이요, 선생님?\n"
+        "뭐, 피곤하면 자야죠. 무리하는 것보단 낫고요.\n"
+        "……잘 자요. 너무 길게 자면 밤에 못 자니까 적당히."
+    ),
+    (
+        "낮에 자는 건 좀 아깝지 않아요?\n"
+        "……뭐, 그만큼 힘들었다는 거겠죠. 잘 자요, 선생님.\n"
+        "일어나면 물 한 잔 마셔요."
+    ),
+    (
+        "……낮잠이요. 알겠어요.\n"
+        "딱히 뭐라 하는 건 아니에요. 잘 자요.\n"
+        "……일어나면 기지개는 펴고요."
+    ),
+]
+
+_GOODNIGHT_KO_EVENING = [
+    (
+        "오늘 하루도 수고하셨으니까, 일찍 자는 거 좋아요.\n"
+        "……잘 자요, 선생님. 양치질은 했죠?\n"
         "내일도 별일 없길 바라요. 뭐, 그냥 하는 말이에요."
+    ),
+    (
+        "이 시간에 자면 내일 개운할 거예요.\n"
+        "……잘 자요. 딱히 걱정하는 건 아니에요.\n"
+        "푹 쉬어요. 그게 저한테도 편하니까요."
     ),
     (
         "……잘 자요, 선생님.\n"
@@ -194,16 +230,69 @@ _GOODNIGHT_KO = [
     ),
 ]
 
-_GOODNIGHT_JA = [
+_GOODNIGHT_KO_NIGHT = [
     (
-        "……もう寝るんですか、先生？\n"
-        "おやすみなさい。明日も無理しないでくださいね。\n"
-        "……ゆっくり休んでください。その方が私も楽なので。"
+        "이 시간까지 뭘 하다가 이제 자는 거예요, 선생님.\n"
+        "잘 자요. 내일도 무리하지 마세요.\n"
+        "……푹 쉬어요. 그게 저한테도 편하니까요."
     ),
     (
-        "この時間に寝るのは良い習慣ですよ、先生。\n"
-        "歯磨きはしましたよね？……おやすみなさい。\n"
+        "늦었네요. 양치질은 했죠? ……잘 자요.\n"
+        "내일도 별일 없길 바라요. 뭐, 그냥 하는 말이에요."
+    ),
+    (
+        "늦었으니까 얼른 자요, 선생님.\n"
+        "……오늘 하루도 수고했어요. 딱히 칭찬하는 건 아니에요.\n"
+        "잘 자요."
+    ),
+]
+
+_GOODNIGHT_JA_MORNING = [
+    (
+        "……朝から寝るんですか、先生？\n"
+        "まぁ、徹夜してたなら休まないといけませんね。仕方ないです。\n"
+        "……ゆっくり寝てください。起きたらご飯食べてから。"
+    ),
+    (
+        "この時間に寝るのはもったいくないですか？\n"
+        "……まぁ、疲れてるなら寝ないといけませんね。無理して起きてても意味ないので。\n"
+        "おやすみなさい、先生。起きたら連絡してください。"
+    ),
+    (
+        "徹夜で何をしてたんですか、先生……\n"
+        "小言は後にします。今はとにかく寝てください。\n"
+        "……おやすみなさい。"
+    ),
+]
+
+_GOODNIGHT_JA_AFTERNOON = [
+    (
+        "昼寝ですか、先生？\n"
+        "まぁ、疲れてるなら寝ないといけませんね。無理するよりましですし。\n"
+        "……おやすみなさい。あまり長く寝ると夜眠れなくなるので、ほどほどに。"
+    ),
+    (
+        "昼間に寝るのはもったいなくないですか？\n"
+        "……まぁ、それだけ疲れてたってことでしょう。おやすみなさい、先生。\n"
+        "起きたら水を一杯飲んでください。"
+    ),
+    (
+        "……昼寝ですね。分かりました。\n"
+        "別に何か言いたいわけじゃないです。おやすみなさい。\n"
+        "……起きたらストレッチはしてくださいね。"
+    ),
+]
+
+_GOODNIGHT_JA_EVENING = [
+    (
+        "今日一日頑張ったんですから、早く寝るのは良いことですよ。\n"
+        "……おやすみなさい、先生。歯磨きはしましたよね？\n"
         "明日も何事もないといいですね。まぁ、ただそう言ってるだけです。"
+    ),
+    (
+        "この時間に寝れば明日すっきりしますよ。\n"
+        "……おやすみなさい。別に心配してるわけじゃないです。\n"
+        "ゆっくり休んでください。その方が私も楽なので。"
     ),
     (
         "……おやすみなさい、先生。\n"
@@ -211,6 +300,45 @@ _GOODNIGHT_JA = [
         "……ただ、おやすみって言いたかっただけです。"
     ),
 ]
+
+_GOODNIGHT_JA_NIGHT = [
+    (
+        "この時間まで何をしてたんですか、先生。やっと寝るんですね。\n"
+        "おやすみなさい。明日も無理しないでくださいね。\n"
+        "……ゆっくり休んでください。その方が私も楽なので。"
+    ),
+    (
+        "遅くなりましたね。歯磨きはしましたよね？……おやすみなさい。\n"
+        "明日も何事もないといいですね。まぁ、ただそう言ってるだけです。"
+    ),
+    (
+        "遅いんですから、早く寝てください、先生。\n"
+        "……今日一日お疲れ様でした。別に褒めてるわけじゃないです。\n"
+        "おやすみなさい。"
+    ),
+]
+
+
+def _get_goodnight_ko(hour: int) -> str:
+    if 5 <= hour < 12:
+        return random.choice(_GOODNIGHT_KO_MORNING)
+    elif 12 <= hour < 18:
+        return random.choice(_GOODNIGHT_KO_AFTERNOON)
+    elif 18 <= hour < 22:
+        return random.choice(_GOODNIGHT_KO_EVENING)
+    else:
+        return random.choice(_GOODNIGHT_KO_NIGHT)
+
+
+def _get_goodnight_ja(hour: int) -> str:
+    if 5 <= hour < 12:
+        return random.choice(_GOODNIGHT_JA_MORNING)
+    elif 12 <= hour < 18:
+        return random.choice(_GOODNIGHT_JA_AFTERNOON)
+    elif 18 <= hour < 22:
+        return random.choice(_GOODNIGHT_JA_EVENING)
+    else:
+        return random.choice(_GOODNIGHT_JA_NIGHT)
 
 
 class GreetCog(commands.Cog, name="인사"):
@@ -250,7 +378,7 @@ class GreetCog(commands.Cog, name="인사"):
     @app_commands.command(name="잘자", description="케이에게 잘 자라고 인사합니다.")
     async def goodnight(self, interaction: discord.Interaction) -> None:
         embed = discord.Embed(
-            description=random.choice(_GOODNIGHT_KO),
+            description=_get_goodnight_ko(datetime.now().hour),
             color=discord.Color.from_rgb(180, 210, 230),
         )
         embed.set_author(
@@ -262,7 +390,7 @@ class GreetCog(commands.Cog, name="인사"):
     @app_commands.command(name="お休み", description="ケイにおやすみなさいと挨拶します。")
     async def goodnight_ja(self, interaction: discord.Interaction) -> None:
         embed = discord.Embed(
-            description=random.choice(_GOODNIGHT_JA),
+            description=_get_goodnight_ja(datetime.now().hour),
             color=discord.Color.from_rgb(180, 210, 230),
         )
         embed.set_author(
