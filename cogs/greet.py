@@ -1,7 +1,9 @@
 from __future__ import annotations
 
 import random
-from datetime import datetime
+from datetime import datetime, timezone, timedelta
+
+_KST = timezone(timedelta(hours=9))
 
 import discord
 from discord import app_commands
@@ -347,7 +349,7 @@ class GreetCog(commands.Cog, name="인사"):
 
     @app_commands.command(name="안녕", description="케이에게 인사합니다.")
     async def greet(self, interaction: discord.Interaction) -> None:
-        hour = datetime.now().hour
+        hour = datetime.now(_KST).hour
         greeting = _get_greeting(hour)
 
         embed = discord.Embed(
@@ -362,7 +364,7 @@ class GreetCog(commands.Cog, name="인사"):
 
     @app_commands.command(name="挨拶", description="ケイに挨拶します。")
     async def greet_ja(self, interaction: discord.Interaction) -> None:
-        hour = datetime.now().hour
+        hour = datetime.now(_KST).hour
         greeting = _get_greeting_ja(hour)
 
         embed = discord.Embed(
@@ -378,7 +380,7 @@ class GreetCog(commands.Cog, name="인사"):
     @app_commands.command(name="잘자", description="케이에게 잘 자라고 인사합니다.")
     async def goodnight(self, interaction: discord.Interaction) -> None:
         embed = discord.Embed(
-            description=_get_goodnight_ko(datetime.now().hour),
+            description=_get_goodnight_ko(datetime.now(_KST).hour),
             color=discord.Color.from_rgb(180, 210, 230),
         )
         embed.set_author(
@@ -390,7 +392,7 @@ class GreetCog(commands.Cog, name="인사"):
     @app_commands.command(name="お休み", description="ケイにおやすみなさいと挨拶します。")
     async def goodnight_ja(self, interaction: discord.Interaction) -> None:
         embed = discord.Embed(
-            description=_get_goodnight_ja(datetime.now().hour),
+            description=_get_goodnight_ja(datetime.now(_KST).hour),
             color=discord.Color.from_rgb(180, 210, 230),
         )
         embed.set_author(
