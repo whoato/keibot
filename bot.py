@@ -36,8 +36,14 @@ class Kei(commands.Bot):
             logger.info(f"Cog 로드: {cog}")
 
         if self._sync:
-            await self.tree.sync()
-            logger.info("슬래시 커맨드 글로벌 동기화 완료 (최대 1시간 소요)")
+            if config.DEV_GUILD_ID:
+                guild = discord.Object(id=config.DEV_GUILD_ID)
+                self.tree.copy_global_to(guild=guild)
+                await self.tree.sync(guild=guild)
+                logger.info(f"슬래시 커맨드 길드 동기화 완료 (즉시 반영, 길드: {config.DEV_GUILD_ID})")
+            else:
+                await self.tree.sync()
+                logger.info("슬래시 커맨드 글로벌 동기화 완료 (최대 1시간 소요)")
         else:
             logger.info("슬래시 커맨드 동기화 생략 (sync 모드 아님)")
 
