@@ -32,10 +32,8 @@ class Kei(commands.Bot):
             await self.load_extension(cog)
             logger.info(f"Cog 로드: {cog}")
 
-        guild = discord.Object(id=config.GUILD_ID)
-        self.tree.copy_global_to(guild=guild)
-        await self.tree.sync(guild=guild)
-        logger.info(f"슬래시 커맨드 동기화 완료 (길드: {config.GUILD_ID})")
+        await self.tree.sync()
+        logger.info("슬래시 커맨드 글로벌 동기화 완료 (최대 1시간 소요)")
 
     async def on_ready(self) -> None:
         logger.info(f"케이(Kei) 봇 준비 완료 | {self.user} (ID: {self.user.id})")

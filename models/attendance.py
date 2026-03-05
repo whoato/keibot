@@ -7,6 +7,7 @@ from typing import Optional
 
 @dataclass
 class UserRecord:
+    guild_id: int
     user_id: int
     username: str
     points: int

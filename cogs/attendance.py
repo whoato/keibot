@@ -17,6 +17,7 @@ class AttendanceCog(commands.Cog, name="출석"):
         await interaction.response.defer(ephemeral=False)
 
         result = await database.attend(
+            guild_id=interaction.guild_id,
             user_id=interaction.user.id,
             username=interaction.user.display_name,
         )
@@ -50,7 +51,7 @@ class AttendanceCog(commands.Cog, name="출석"):
     async def my_info(self, interaction: discord.Interaction) -> None:
         await interaction.response.defer(ephemeral=True)
 
-        user = await database.get_user(interaction.user.id)
+        user = await database.get_user(interaction.guild_id, interaction.user.id)
 
         if user is None:
             embed = discord.Embed(
@@ -77,7 +78,7 @@ class AttendanceCog(commands.Cog, name="출석"):
     async def ranking(self, interaction: discord.Interaction) -> None:
         await interaction.response.defer(ephemeral=False)
 
-        users = await database.get_ranking(limit=10)
+        users = await database.get_ranking(interaction.guild_id, limit=10)
 
         if not users:
             embed = discord.Embed(

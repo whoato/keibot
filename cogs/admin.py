@@ -19,7 +19,7 @@ class AdminCog(commands.Cog, name="관리자"):
     ) -> None:
         await interaction.response.defer(ephemeral=True)
 
-        success = await database.reset_user(member.id)
+        success = await database.reset_user(interaction.guild_id, member.id)
 
         if not success:
             embed = discord.Embed(

@@ -4,7 +4,6 @@ from dotenv import load_dotenv
 load_dotenv()
 
 DISCORD_TOKEN: str = os.environ["DISCORD_TOKEN"]
-GUILD_ID: int = int(os.environ["GUILD_ID"])
 DB_PATH: str = os.getenv("DB_PATH", "kei.db")
 
 # 포인트 설정
