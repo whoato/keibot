@@ -81,6 +81,79 @@ _GREETINGS_NIGHT = [
 ]
 
 
+_GREETINGS_JA_MORNING = [
+    (
+        "……朝から呼ぶんですか、先生。\n"
+        "まぁ、別に嫌というわけじゃないですけど。食事はちゃんとしてるんですよね？\n"
+        "仕事はほどほどに。とはいえ怠けるのもほどほどに。……本当に、手が焼けるんですから。"
+    ),
+    (
+        "……早起きですね、先生。\n"
+        "今日やることは整理してますか？計画なく動くのは効率が落ちますよ。\n"
+        "……別に気にかけてるわけじゃないですよ。ただそう言ってるだけです。"
+    ),
+    (
+        "おはようございます。……まぁ、そう言ってるだけですけど。\n"
+        "朝食は食べましたか？食べてないなら食べてください。\n"
+        "……先生が元気でいてくれた方が、私も楽なんです。それだけです。"
+    ),
+]
+
+_GREETINGS_JA_AFTERNOON = [
+    (
+        "何ですか？用がないなら呼ばないでください。\n"
+        "えっ？私がちゃんといるのか確認するのが仕事？\n"
+        "本当にこの人は！……まぁ。こういうやりとりも、嫌いじゃありません。"
+    ),
+    (
+        "……また私ですか？やることないわけじゃないですよね、先生。\n"
+        "まぁ、呼んだからには用があるんでしょう。言ってください。\n"
+        "……ないんですか？じゃあ休んでください。休むのも仕事ですよ。"
+    ),
+    (
+        "昼間なのにこんなことしてていいんですか？\n"
+        "……別に何か言いたいわけじゃないです。ただ、大丈夫か確認してるだけです。\n"
+        "ご飯は食べましたか？食べたならいいです。……ちゃんとしてるなら、それでいいんです。"
+    ),
+]
+
+_GREETINGS_JA_EVENING = [
+    (
+        "……今日もお疲れ様でした、先生。\n"
+        "お疲れって言ってるわけじゃないです。当然のことをしただけですから。\n"
+        "まぁ、それでも……こうしていられるのは、確かに良いことですね。"
+    ),
+    (
+        "夕方になりましたね、先生。\n"
+        "今日は辛いことありませんでしたか？……別に慰めようとしてるわけじゃないです。\n"
+        "ただ……聞きたかっただけです。"
+    ),
+    (
+        "……退勤はしましたか？\n"
+        "無理しないでって言ったじゃないですか。私もずっと言い続けられませんよ。\n"
+        "……まぁ、今日一日何もなかったなら、それで十分です。"
+    ),
+]
+
+_GREETINGS_JA_NIGHT = [
+    (
+        "……先生。この時間にまだ起きてるんですか。\n"
+        "休息、忘れないでください。歯磨きもですよ。\n"
+        "あまり危険なことはしないでください。先生がいなくなるのは……私も、嫌ですから……"
+    ),
+    (
+        "……こんな遅い時間に何ですか、先生。\n"
+        "まだやることが残ってるんですか？早く終わらせて寝てください。\n"
+        "……無理するの、私はあまり好きじゃないです。分かってますよね？"
+    ),
+    (
+        "寝ないといけませんよ、先生。この時間まで何をしてるんですか。\n"
+        "……私は別に、大丈夫です。でも先生は少し休まないと。\n"
+        "明日もありますから。……おやすみなさい。"
+    ),
+]
+
+
 def _get_greeting(hour: int) -> str:
     if 5 <= hour < 12:
         return random.choice(_GREETINGS_MORNING)
@@ -90,6 +163,17 @@ def _get_greeting(hour: int) -> str:
         return random.choice(_GREETINGS_EVENING)
     else:
         return random.choice(_GREETINGS_NIGHT)
+
+
+def _get_greeting_ja(hour: int) -> str:
+    if 5 <= hour < 12:
+        return random.choice(_GREETINGS_JA_MORNING)
+    elif 12 <= hour < 18:
+        return random.choice(_GREETINGS_JA_AFTERNOON)
+    elif 18 <= hour < 22:
+        return random.choice(_GREETINGS_JA_EVENING)
+    else:
+        return random.choice(_GREETINGS_JA_NIGHT)
 
 
 class GreetCog(commands.Cog, name="인사"):
@@ -107,6 +191,21 @@ class GreetCog(commands.Cog, name="인사"):
         )
         embed.set_author(
             name="케이",
+            icon_url=self.bot.user.display_avatar.url,
+        )
+        await interaction.response.send_message(embed=embed)
+
+    @app_commands.command(name="挨拶", description="ケイに挨拶します。")
+    async def greet_ja(self, interaction: discord.Interaction) -> None:
+        hour = datetime.now().hour
+        greeting = _get_greeting_ja(hour)
+
+        embed = discord.Embed(
+            description=greeting,
+            color=discord.Color.from_rgb(180, 210, 230),
+        )
+        embed.set_author(
+            name="ケイ",
             icon_url=self.bot.user.display_avatar.url,
         )
         await interaction.response.send_message(embed=embed)
