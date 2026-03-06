@@ -8,7 +8,7 @@ from google import genai
 from google.genai import types
 
 import config
-from db.database import check_points, deduct_points, get_chat_channel, get_chat_history, get_user, save_chat_message
+from db.database import check_points, deduct_points, get_chat_channel, get_chat_history, get_user, save_chat_pair
 
 logger = logging.getLogger("kei.chat")
 
@@ -115,8 +115,7 @@ class ChatCog(commands.Cog, name="대화"):
             await deduct_points(guild_id, user_id, config.CHAT_COST)
 
         # 히스토리 저장
-        await save_chat_message(guild_id, user_id, "user", message.content, config.CHAT_HISTORY_LIMIT)
-        await save_chat_message(guild_id, user_id, "model", reply, config.CHAT_HISTORY_LIMIT)
+        await save_chat_pair(guild_id, user_id, message.content, reply, config.CHAT_HISTORY_LIMIT)
 
         await message.channel.send(reply)
 

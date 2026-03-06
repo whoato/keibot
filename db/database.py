@@ -224,12 +224,15 @@ async def get_chat_history(guild_id: int, user_id: int, limit: int) -> list[dict
         return [{"role": row["role"], "parts": [{"text": row["content"]}]} for row in reversed(rows)]
 
 
-async def save_chat_message(guild_id: int, user_id: int, role: str, content: str, limit: int) -> None:
-    """대화 메시지 저장 후 limit 초과분 삭제."""
+async def save_chat_pair(guild_id: int, user_id: int, user_msg: str, model_msg: str, limit: int) -> None:
+    """user/model 메시지 쌍을 한 트랜잭션에 저장하고 limit 초과분 삭제."""
     async with aiosqlite.connect(config.DB_PATH) as db:
-        await db.execute(
+        await db.executemany(
             "INSERT INTO chat_history (guild_id, user_id, role, content) VALUES (?, ?, ?, ?)",
-            (guild_id, user_id, role, content),
+            [
+                (guild_id, user_id, "user", user_msg),
+                (guild_id, user_id, "model", model_msg),
+            ],
         )
         await db.execute(
             """DELETE FROM chat_history WHERE id IN (
