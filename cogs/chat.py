@@ -81,6 +81,10 @@ class ChatCog(commands.Cog, name="대화"):
         if not message.guild:
             return
 
+        # 다른 사람에게 reply한 메시지는 무시
+        if message.reference is not None:
+            return
+
         guild_id = message.guild.id
 
         # DB에서 채널 확인, 미설정 시 환경변수 fallback
