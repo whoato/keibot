@@ -8,7 +8,7 @@ from google import genai
 from google.genai import types
 
 import config
-from db.database import deduct_points, get_chat_channel, get_chat_history, get_user, save_chat_message
+from db.database import check_points, deduct_points, get_chat_channel, get_chat_history, get_user, save_chat_message
 
 logger = logging.getLogger("kei.chat")
 
@@ -72,17 +72,16 @@ class ChatCog(commands.Cog, name="대화"):
         user_id = message.author.id
         is_admin = message.author.guild_permissions.administrator
 
-        # 포인트 차감 (관리자는 면제)
+        # 포인트 잔액 확인 (관리자는 면제)
         if not is_admin:
-            success = await deduct_points(guild_id, user_id, config.CHAT_COST)
-            if not success:
-                record = await get_user(guild_id, user_id)
-                if record is None:
-                    await message.channel.send(_MSG_NO_USER)
-                else:
-                    await message.channel.send(
-                        f"……포인트가 부족해요. 현재 **{record.points}P**, 필요한 포인트: **{config.CHAT_COST}P**.\n출석 체크하고 오세요."
-                    )
+            record = await get_user(guild_id, user_id)
+            if record is None:
+                await message.channel.send(_MSG_NO_USER)
+                return
+            if not await check_points(guild_id, user_id, config.CHAT_COST):
+                await message.channel.send(
+                    f"……포인트가 부족해요. 현재 **{record.points}P**, 필요한 포인트: **{config.CHAT_COST}P**.\n출석 체크하고 오세요."
+                )
                 return
 
         # 대화 히스토리 로드
@@ -95,11 +94,12 @@ class ChatCog(commands.Cog, name="대화"):
                     {"role": "user", "parts": [{"text": message.content}]}
                 ]
                 response = self._client.models.generate_content(
-                    model="gemini-2.0-flash",
+                    model=config.GEMINI_MODEL,
                     contents=contents,
                     config=types.GenerateContentConfig(
                         system_instruction=_SYSTEM_PROMPT,
                         max_output_tokens=300,
+                        http_options=types.HttpOptions(timeout=config.GEMINI_TIMEOUT * 1000),
                     ),
                 )
                 reply = response.text.strip()
@@ -107,6 +107,10 @@ class ChatCog(commands.Cog, name="대화"):
                 logger.error(f"Gemini API 오류: {e}")
                 await message.channel.send("……지금은 대답하기 어렵네요. 나중에 다시 말을 걸어줘요.")
                 return
+
+        # API 성공 후 포인트 차감
+        if not is_admin:
+            await deduct_points(guild_id, user_id, config.CHAT_COST)
 
         # 히스토리 저장
         await save_chat_message(guild_id, user_id, "user", message.content, config.CHAT_HISTORY_LIMIT)

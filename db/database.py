@@ -181,6 +181,17 @@ async def set_chat_channel(guild_id: int, channel_id: int) -> None:
         await db.commit()
 
 
+async def check_points(guild_id: int, user_id: int, amount: int) -> bool:
+    """포인트가 충분한지 확인. 차감하지 않음."""
+    async with aiosqlite.connect(config.DB_PATH) as db:
+        db.row_factory = aiosqlite.Row
+        async with db.execute(
+            "SELECT points FROM users WHERE guild_id = ? AND user_id = ?", (guild_id, user_id)
+        ) as cursor:
+            row = await cursor.fetchone()
+        return row is not None and row["points"] >= amount
+
+
 async def deduct_points(guild_id: int, user_id: int, amount: int) -> bool:
     """포인트 차감. 포인트가 부족하면 False 반환."""
     async with aiosqlite.connect(config.DB_PATH) as db:
