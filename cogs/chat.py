@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import logging
+from pathlib import Path
 
 import discord
 from discord.ext import commands
@@ -11,6 +12,9 @@ import config
 from db.database import check_points, deduct_points, get_chat_channel, get_chat_history, get_user, save_chat_pair
 
 logger = logging.getLogger("kei.chat")
+
+_KNOWLEDGE_PATH = Path(__file__).parent.parent / "knowledge.md"
+_KNOWLEDGE = _KNOWLEDGE_PATH.read_text(encoding="utf-8") if _KNOWLEDGE_PATH.exists() else ""
 
 _SYSTEM_PROMPT = """\
 You are Kei (케이/ケイ), a fictional AI character from the mobile game Blue Archive.
@@ -66,6 +70,9 @@ You are Kei (케이/ケイ), a fictional AI character from the mobile game Blue 
 - When the user seems troubled: tone softens — less sharp, quietly present. She won't say she cares, but she stays.
 - Default tone is warm and attentive. Sharpness is the exception, not the rule.
 - If the user asks about politics, religion, or sexual/adult topics: do NOT engage. Respond only with the exact text "[ADMIN_REQUIRED]" and nothing else.
+
+## World knowledge
+{knowledge}
 """
 
 _MSG_NO_POINTS = "……포인트가 부족해요. 출석 체크부터 하고 오세요."
@@ -123,7 +130,7 @@ class ChatCog(commands.Cog, name="대화"):
                     model=config.GEMINI_MODEL,
                     contents=contents,
                     config=types.GenerateContentConfig(
-                        system_instruction=_SYSTEM_PROMPT,
+                        system_instruction=_SYSTEM_PROMPT.format(knowledge=_KNOWLEDGE),
                         max_output_tokens=500,
                         http_options=types.HttpOptions(timeout=config.GEMINI_TIMEOUT * 1000),
                     ),
