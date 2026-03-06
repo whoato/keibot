@@ -344,9 +344,9 @@ def _get_goodnight_ja(hour: int) -> str:
 
 
 _KEYWORD_GREET_KO = ["케이야 안녕", "케이 안녕"]
-_KEYWORD_GREET_JA = ["ケイ、おはよう", "ケイおはよう", "ケイ、こんにちは", "ケイこんにちは", "ケイ、こんばんは", "ケイこんばんは", "ケイ、おい", "ケイ、ねえ"]
+_KEYWORD_GREET_JA = ["ケイ、おはよう", "ケイおはよう", "ケイちゃん、おはよう", "ケイちゃんおはよう", "ケイ、こんにちは", "ケイこんにちは", "ケイちゃん、こんにちは", "ケイちゃんこんにちは", "ケイ、こんばんは", "ケイこんばんは", "ケイちゃん、こんばんは", "ケイちゃんこんばんは", "ケイ、おい", "ケイ、ねえ", "ケイちゃん、おい", "ケイちゃん、ねえ"]
 _KEYWORD_GOODNIGHT_KO = ["케이야 잘자", "케이 잘자", "케이야 잘 자", "케이 잘 자"]
-_KEYWORD_GOODNIGHT_JA = ["ケイ、おやすみ", "ケイおやすみ"]
+_KEYWORD_GOODNIGHT_JA = ["ケイ、おやすみ", "ケイおやすみ", "ケイちゃん、おやすみ", "ケイちゃんおやすみ"]
 
 
 class GreetCog(commands.Cog, name="인사"):
@@ -362,36 +362,16 @@ class GreetCog(commands.Cog, name="인사"):
         hour = datetime.now(_KST).hour
 
         if any(kw in content for kw in _KEYWORD_GREET_KO):
-            embed = discord.Embed(
-                description=_get_greeting(hour),
-                color=discord.Color.from_rgb(180, 210, 230),
-            )
-            embed.set_author(name="케이", icon_url=self.bot.user.display_avatar.url)
-            await message.channel.send(embed=embed)
+            await message.channel.send(_get_greeting(hour))
 
         elif any(kw in content for kw in _KEYWORD_GREET_JA):
-            embed = discord.Embed(
-                description=_get_greeting_ja(hour),
-                color=discord.Color.from_rgb(180, 210, 230),
-            )
-            embed.set_author(name="ケイ", icon_url=self.bot.user.display_avatar.url)
-            await message.channel.send(embed=embed)
+            await message.channel.send(_get_greeting_ja(hour))
 
         elif any(kw in content for kw in _KEYWORD_GOODNIGHT_KO):
-            embed = discord.Embed(
-                description=_get_goodnight_ko(hour),
-                color=discord.Color.from_rgb(180, 210, 230),
-            )
-            embed.set_author(name="케이", icon_url=self.bot.user.display_avatar.url)
-            await message.channel.send(embed=embed)
+            await message.channel.send(_get_goodnight_ko(hour))
 
         elif any(kw in content for kw in _KEYWORD_GOODNIGHT_JA):
-            embed = discord.Embed(
-                description=_get_goodnight_ja(hour),
-                color=discord.Color.from_rgb(180, 210, 230),
-            )
-            embed.set_author(name="ケイ", icon_url=self.bot.user.display_avatar.url)
-            await message.channel.send(embed=embed)
+            await message.channel.send(_get_goodnight_ja(hour))
 
     @app_commands.command(name="안녕", description="케이에게 인사합니다.")
     async def greet(self, interaction: discord.Interaction) -> None:
