@@ -18,6 +18,7 @@ COGS = [
     "cogs.attendance",
     "cogs.admin",
     "cogs.greet",
+    "cogs.chat",
 ]
 
 

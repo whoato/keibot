@@ -39,6 +39,15 @@ async def init_db() -> None:
                 FOREIGN KEY (guild_id, user_id) REFERENCES users(guild_id, user_id)
             )
         """)
+        await db.execute("""
+            CREATE TABLE IF NOT EXISTS chat_history (
+                id       INTEGER PRIMARY KEY AUTOINCREMENT,
+                guild_id INTEGER NOT NULL,
+                user_id  INTEGER NOT NULL,
+                role     TEXT NOT NULL,
+                content  TEXT NOT NULL
+            )
+        """)
         await db.commit()
 
 
@@ -142,6 +151,58 @@ async def get_ranking(guild_id: int, limit: int = 10) -> list[UserRecord]:
                 )
                 for row in rows
             ]
+
+
+async def deduct_points(guild_id: int, user_id: int, amount: int) -> bool:
+    """포인트 차감. 포인트가 부족하면 False 반환."""
+    async with aiosqlite.connect(config.DB_PATH) as db:
+        db.row_factory = aiosqlite.Row
+        async with db.execute(
+            "SELECT points FROM users WHERE guild_id = ? AND user_id = ?", (guild_id, user_id)
+        ) as cursor:
+            row = await cursor.fetchone()
+        if row is None or row["points"] < amount:
+            return False
+        await db.execute(
+            "UPDATE users SET points = points - ? WHERE guild_id = ? AND user_id = ?",
+            (amount, guild_id, user_id),
+        )
+        await db.commit()
+        return True
+
+
+async def get_chat_history(guild_id: int, user_id: int, limit: int) -> list[dict]:
+    """유저의 최근 대화 히스토리 반환 (오래된 순)."""
+    async with aiosqlite.connect(config.DB_PATH) as db:
+        db.row_factory = aiosqlite.Row
+        async with db.execute(
+            """SELECT role, content FROM chat_history
+               WHERE guild_id = ? AND user_id = ?
+               ORDER BY id DESC LIMIT ?""",
+            (guild_id, user_id, limit * 2),
+        ) as cursor:
+            rows = await cursor.fetchall()
+        return [{"role": row["role"], "parts": [{"text": row["content"]}]} for row in reversed(rows)]
+
+
+async def save_chat_message(guild_id: int, user_id: int, role: str, content: str, limit: int) -> None:
+    """대화 메시지 저장 후 limit 초과분 삭제."""
+    async with aiosqlite.connect(config.DB_PATH) as db:
+        await db.execute(
+            "INSERT INTO chat_history (guild_id, user_id, role, content) VALUES (?, ?, ?, ?)",
+            (guild_id, user_id, role, content),
+        )
+        await db.execute(
+            """DELETE FROM chat_history WHERE id IN (
+               SELECT id FROM chat_history
+               WHERE guild_id = ? AND user_id = ?
+               ORDER BY id ASC LIMIT MAX(0, (
+                   SELECT COUNT(*) FROM chat_history WHERE guild_id = ? AND user_id = ?
+               ) - ?)
+            )""",
+            (guild_id, user_id, guild_id, user_id, limit * 2),
+        )
+        await db.commit()
 
 
 async def reset_user(guild_id: int, user_id: int) -> bool:
