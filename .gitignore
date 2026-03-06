@@ -15,3 +15,8 @@ env/
 # IDE
 .vscode/
 .idea/
+.claude/
+
+#기타
+말투참고
+ssh-hosting/
