@@ -1,8 +1,14 @@
 from __future__ import annotations
 
 import aiosqlite
-from datetime import date, timedelta
+from datetime import date, datetime, timedelta, timezone
 from typing import Optional
+
+_KST = timezone(timedelta(hours=9))
+
+
+def _today_kst() -> date:
+    return datetime.now(_KST).date()
 
 import config
 from models.attendance import UserRecord, AttendanceResult
@@ -57,7 +63,7 @@ async def get_user(guild_id: int, user_id: int) -> Optional[UserRecord]:
 
 
 async def attend(guild_id: int, user_id: int, username: str) -> AttendanceResult:
-    today = date.today()
+    today = _today_kst()
 
     async with aiosqlite.connect(config.DB_PATH) as db:
         db.row_factory = aiosqlite.Row
