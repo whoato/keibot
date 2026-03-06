@@ -36,6 +36,20 @@ class AdminCog(commands.Cog, name="관리자"):
 
         await interaction.followup.send(embed=embed)
 
+    @app_commands.command(name="채팅채널설정", description="[관리자] 케이 AI 대화 채널을 설정합니다.")
+    @app_commands.describe(channel="AI 대화를 활성화할 채널을 선택하세요.")
+    @app_commands.default_permissions(administrator=True)
+    async def set_chat_channel(
+        self, interaction: discord.Interaction, channel: discord.TextChannel
+    ) -> None:
+        await interaction.response.defer(ephemeral=True)
+        await database.set_chat_channel(interaction.guild_id, channel.id)
+        embed = discord.Embed(
+            description=f"{channel.mention} 채널이 케이 대화 채널로 설정됐어요.",
+            color=discord.Color.from_rgb(180, 210, 230),
+        )
+        await interaction.followup.send(embed=embed)
+
 
 async def setup(bot: commands.Bot) -> None:
     await bot.add_cog(AdminCog(bot))

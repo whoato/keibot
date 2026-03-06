@@ -8,7 +8,7 @@ from google import genai
 from google.genai import types
 
 import config
-from db.database import deduct_points, get_chat_history, save_chat_message
+from db.database import deduct_points, get_chat_channel, get_chat_history, get_user, save_chat_message
 
 logger = logging.getLogger("kei.chat")
 
@@ -59,10 +59,16 @@ class ChatCog(commands.Cog, name="대화"):
     async def on_message(self, message: discord.Message) -> None:
         if message.author.bot:
             return
-        if config.CHAT_CHANNEL_ID == 0 or message.channel.id != config.CHAT_CHANNEL_ID:
+        if not message.guild:
             return
 
         guild_id = message.guild.id
+
+        # DB에서 채널 확인, 미설정 시 환경변수 fallback
+        chat_channel_id = await get_chat_channel(guild_id) or config.CHAT_CHANNEL_ID
+        if chat_channel_id == 0 or message.channel.id != chat_channel_id:
+            return
+
         user_id = message.author.id
         is_admin = message.author.guild_permissions.administrator
 
@@ -70,8 +76,6 @@ class ChatCog(commands.Cog, name="대화"):
         if not is_admin:
             success = await deduct_points(guild_id, user_id, config.CHAT_COST)
             if not success:
-                user = await self.bot.fetch_user(user_id)
-                from db.database import get_user
                 record = await get_user(guild_id, user_id)
                 if record is None:
                     await message.channel.send(_MSG_NO_USER)

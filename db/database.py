@@ -48,6 +48,12 @@ async def init_db() -> None:
                 content  TEXT NOT NULL
             )
         """)
+        await db.execute("""
+            CREATE TABLE IF NOT EXISTS guild_settings (
+                guild_id        INTEGER PRIMARY KEY,
+                chat_channel_id INTEGER
+            )
+        """)
         await db.commit()
 
 
@@ -151,6 +157,28 @@ async def get_ranking(guild_id: int, limit: int = 10) -> list[UserRecord]:
                 )
                 for row in rows
             ]
+
+
+async def get_chat_channel(guild_id: int) -> Optional[int]:
+    """길드의 채팅 채널 ID 반환. 미설정 시 None."""
+    async with aiosqlite.connect(config.DB_PATH) as db:
+        db.row_factory = aiosqlite.Row
+        async with db.execute(
+            "SELECT chat_channel_id FROM guild_settings WHERE guild_id = ?", (guild_id,)
+        ) as cursor:
+            row = await cursor.fetchone()
+        return row["chat_channel_id"] if row else None
+
+
+async def set_chat_channel(guild_id: int, channel_id: int) -> None:
+    """길드의 채팅 채널 ID 설정."""
+    async with aiosqlite.connect(config.DB_PATH) as db:
+        await db.execute(
+            "INSERT INTO guild_settings (guild_id, chat_channel_id) VALUES (?, ?) "
+            "ON CONFLICT(guild_id) DO UPDATE SET chat_channel_id = excluded.chat_channel_id",
+            (guild_id, channel_id),
+        )
+        await db.commit()
 
 
 async def deduct_points(guild_id: int, user_id: int, amount: int) -> bool:
