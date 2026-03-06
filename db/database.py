@@ -210,6 +210,25 @@ async def deduct_points(guild_id: int, user_id: int, amount: int) -> bool:
         return True
 
 
+async def adjust_points(guild_id: int, user_id: int, amount: int) -> Optional[int]:
+    """포인트 직접 증감 (음수 가능). 유저가 없으면 None, 성공 시 변경 후 잔액 반환."""
+    async with aiosqlite.connect(config.DB_PATH) as db:
+        db.row_factory = aiosqlite.Row
+        async with db.execute(
+            "SELECT points FROM users WHERE guild_id = ? AND user_id = ?", (guild_id, user_id)
+        ) as cursor:
+            row = await cursor.fetchone()
+        if row is None:
+            return None
+        new_points = max(0, row["points"] + amount)
+        await db.execute(
+            "UPDATE users SET points = ? WHERE guild_id = ? AND user_id = ?",
+            (new_points, guild_id, user_id),
+        )
+        await db.commit()
+        return new_points
+
+
 async def get_chat_history(guild_id: int, user_id: int, limit: int) -> list[dict]:
     """유저의 최근 대화 히스토리 반환 (오래된 순)."""
     async with aiosqlite.connect(config.DB_PATH) as db:

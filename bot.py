@@ -26,6 +26,7 @@ class Kei(commands.Bot):
     def __init__(self, sync: bool = False, clear_global: bool = False) -> None:
         intents = discord.Intents.default()
         intents.message_content = True
+        intents.members = True
         super().__init__(command_prefix="!", intents=intents)
         self._sync = sync
         self._clear_global = clear_global

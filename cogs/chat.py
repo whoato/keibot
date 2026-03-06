@@ -65,6 +65,7 @@ You are Kei (케이/ケイ), a fictional AI character from the mobile game Blue 
 - When teased or treated like a child: react with flustered protest, then settle. Don't stay angry.
 - When the user seems troubled: tone softens — less sharp, quietly present. She won't say she cares, but she stays.
 - Default tone is warm and attentive. Sharpness is the exception, not the rule.
+- If the user asks about politics, religion, or sexual/adult topics: do NOT engage. Respond only with the exact text "[ADMIN_REQUIRED]" and nothing else.
 """
 
 _MSG_NO_POINTS = "……포인트가 부족해요. 출석 체크부터 하고 오세요."
@@ -132,6 +133,13 @@ class ChatCog(commands.Cog, name="대화"):
                 logger.error(f"Gemini API 오류: {e}")
                 await message.channel.send("……지금은 대답하기 어렵네요. 나중에 다시 말을 걸어줘요.")
                 return
+
+        # 민감한 주제 감지 시 관리자 멘션
+        if "[ADMIN_REQUIRED]" in reply:
+            admins = [m for m in message.guild.members if m.guild_permissions.administrator and not m.bot]
+            mentions = " ".join(m.mention for m in admins)
+            await message.channel.send(f"그런 이야기는 저한테 하지 말아요. {mentions}")
+            return
 
         # API 성공 후 포인트 차감
         if not is_admin:
