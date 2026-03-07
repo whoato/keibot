@@ -136,7 +136,9 @@ class ChatCog(commands.Cog, name="대화"):
                         http_options=types.HttpOptions(timeout=config.GEMINI_TIMEOUT * 1000),
                     ),
                 )
-                reply = response.text.strip()
+                reply = response.text.strip().replace("\x3f", "?")
+                # 제어문자 제거
+                reply = "".join(ch for ch in reply if ch >= " " or ch in "\n")
             except Exception as e:
                 logger.error(f"Gemini API 오류: {e}")
                 await message.channel.send("……지금은 대답하기 어렵네요. 나중에 다시 말을 걸어줘요.")
