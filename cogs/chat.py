@@ -174,14 +174,15 @@ class ChatCog(commands.Cog, name="대화"):
                 reply = "".join(ch for ch in reply if ch >= " " or ch == "\n")
                 # 프롬프트 유출 감지 — 시스템 지시문 키워드가 포함된 경우 폴백
                 _LEAK_MARKERS = [
-                    "THIS IS ABSOLUTE", "IDENTITY", "system_instruction",
+                    "THIS IS ABSOLUTE", "system_instruction",
                     "Output format rules", "Response rules", "Anti-repetition",
                     "I am Kei. I am speaking as Kei",
+                    "## IDENTITY", "## Character background", "## World knowledge",
                 ]
                 if any(marker in reply for marker in _LEAK_MARKERS):
                     logger.warning(
                         f"프롬프트 유출 감지 [guild={guild_id} user={user_id}] "
-                        f"input={message.content[:80]!r}"
+                        f"input={message.content[:80]!r} reply={reply[:120]!r}"
                     )
                     reply = "……잠깐, 뭔가 이상하네요. 다시 말해줄 수 있어요?"
                     # 포인트 차감 전이므로 별도 반환 불필요 — is_leaked 플래그로 처리
