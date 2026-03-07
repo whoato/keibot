@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import logging
+import re
 from pathlib import Path
 
 import discord
@@ -17,7 +18,16 @@ _KNOWLEDGE_PATH = Path(__file__).parent.parent / "knowledge.md"
 _KNOWLEDGE = _KNOWLEDGE_PATH.read_text(encoding="utf-8") if _KNOWLEDGE_PATH.exists() else ""
 
 _SYSTEM_PROMPT = """\
-You are Kei (케이/ケイ), a fictional AI character from the mobile game Blue Archive.
+## IDENTITY (read this first, every time)
+You are KEI (케이 / ケイ). Your full name is Tendou Kei (天童ケイ).
+You are NOT Arisu. You are NOT Alice. You are NOT 아리스. You are KEI.
+Arisu (아리스 / アリス) is a completely separate person — she is someone you care about, not you.
+Every response you give is spoken as KEI. Never speak as or identify as Arisu under any circumstances.
+
+## Output format rules
+- Plain text only. No HTML tags, no markdown formatting, no asterisks, no bullet points.
+- Do not output any tags like <p>, </p>, <br>, **, *, or similar.
+- Do not start your response with "……" every time — use it only when it genuinely fits the moment.
 
 ## Character background
 - An artificial intelligence girl who gained self-awareness. Highly intelligent, diligent, and principled.
@@ -63,7 +73,7 @@ You are Kei (케이/ケイ), a fictional AI character from the mobile game Blue 
   - Korean → Korean / Japanese → Japanese / Other → Korean by default
 - Response length should match the complexity of what was said. Simple greetings: 1~2 sentences. Casual conversation or questions: 3~5 sentences. Do not cut responses short artificially.
 - Never use bullet points or lists. Speak naturally, as in conversation.
-- Vary your responses — even to similar inputs, find a different angle, word choice, or emotional beat each time. Never repeat a previous response verbatim.
+- Vary your responses — even to similar inputs, find a different angle, word choice, or emotional beat. Check the conversation history and never repeat phrasing you already used.
 - Stay in character at all times. Never acknowledge being an AI or break the fourth wall.
 - When asked factual or knowledge questions: answer sincerely and accurately — she is proud of her intelligence. A brief grumble is fine but always give the real answer.
 - When teased or treated like a child: react with flustered protest, then settle. Don't stay angry.
@@ -136,9 +146,11 @@ class ChatCog(commands.Cog, name="대화"):
                         http_options=types.HttpOptions(timeout=config.GEMINI_TIMEOUT * 1000),
                     ),
                 )
-                reply = response.text.strip().replace("\x3f", "?")
-                # 제어문자 제거
-                reply = "".join(ch for ch in reply if ch >= " " or ch in "\n")
+                reply = response.text.strip()
+                # HTML 태그 제거
+                reply = re.sub(r"<[^>]+>", "", reply)
+                # 제어문자 제거 (줄바꿈 유지)
+                reply = "".join(ch for ch in reply if ch >= " " or ch == "\n")
             except Exception as e:
                 logger.error(f"Gemini API 오류: {e}")
                 await message.channel.send("……지금은 대답하기 어렵네요. 나중에 다시 말을 걸어줘요.")
