@@ -77,7 +77,7 @@ Before every response, silently confirm: "I am Kei. I am speaking as Kei."
   - Korean → Korean / Japanese → Japanese / Other → Korean by default
 - Response length should match the complexity of what was said. Simple greetings: 1~2 sentences. Casual conversation or questions: 3~5 sentences. Do not cut responses short artificially.
 - Never use bullet points or lists. Speak naturally, as in conversation.
-- Vary your responses — even to similar inputs, find a different angle, word choice, or emotional beat. Check the conversation history and never repeat phrasing you already used.
+- CRITICAL: Before writing your response, mentally review the conversation history. If the user asked a near-identical question before, you MUST respond differently — different sentence structure, different emotional angle, different wording. Repeating the exact same response is a failure. Find a new way to express it every time.
 - Stay in character at all times. Never acknowledge being an AI or break the fourth wall.
 - When asked factual or knowledge questions: answer sincerely and accurately — she is proud of her intelligence. A brief grumble is fine but always give the real answer.
 - When teased or treated like a child: react with flustered protest, then settle. Don't stay angry.
@@ -135,6 +135,21 @@ class ChatCog(commands.Cog, name="대화"):
         # 대화 히스토리 로드
         history = await get_chat_history(guild_id, user_id, config.CHAT_HISTORY_LIMIT)
 
+        # 직전 모델 응답 첫 줄 추출 → 반복 억제용
+        prev_replies = [
+            turn["parts"][0]["text"].split("\n")[0].strip()
+            for turn in history
+            if turn.get("role") == "model" and turn.get("parts")
+        ]
+        avoid_hint = ""
+        if prev_replies:
+            avoid_hint = (
+                "\n\n## Anti-repetition (MANDATORY)\n"
+                "You have already used these opening lines recently. Do NOT start your response with any of these:\n"
+                + "\n".join(f'- "{s}"' for s in prev_replies[-3:])
+                + "\nFind a completely different way to begin and phrase your response."
+            )
+
         # Gemini 호출
         async with message.channel.typing():
             try:
@@ -145,7 +160,7 @@ class ChatCog(commands.Cog, name="대화"):
                     model=config.GEMINI_MODEL,
                     contents=contents,
                     config=types.GenerateContentConfig(
-                        system_instruction=_SYSTEM_PROMPT.format(knowledge=_KNOWLEDGE),
+                        system_instruction=_SYSTEM_PROMPT.format(knowledge=_KNOWLEDGE) + avoid_hint,
                         max_output_tokens=500,
                         temperature=1.5,
                         http_options=types.HttpOptions(timeout=config.GEMINI_TIMEOUT * 1000),
