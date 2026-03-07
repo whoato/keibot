@@ -188,8 +188,11 @@ class ChatCog(commands.Cog, name="대화"):
                     is_leaked = True
                 else:
                     is_leaked = False
-            except Exception as e:
-                logger.error(f"Gemini API 오류: {e}")
+            except Exception:
+                logger.error(
+                    f"Gemini API 오류 [guild={guild_id} user={user_id}] input={message.content[:80]!r}",
+                    exc_info=True,
+                )
                 await message.channel.send("……지금은 대답하기 어렵네요. 나중에 다시 말을 걸어줘요.")
                 return
 
