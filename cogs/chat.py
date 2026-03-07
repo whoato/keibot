@@ -10,7 +10,7 @@ from google import genai
 from google.genai import types
 
 import config
-from db.database import check_points, deduct_points, get_chat_channel, get_chat_history, get_user, save_chat_pair
+from db.database import adjust_points, check_points, deduct_points, get_chat_channel, get_chat_history, get_user, save_chat_pair
 
 logger = logging.getLogger("kei.chat")
 
@@ -179,8 +179,15 @@ class ChatCog(commands.Cog, name="대화"):
                     "I am Kei. I am speaking as Kei",
                 ]
                 if any(marker in reply for marker in _LEAK_MARKERS):
-                    logger.warning("프롬프트 유출 감지, 응답 폐기")
+                    logger.warning(
+                        f"프롬프트 유출 감지 [guild={guild_id} user={user_id}] "
+                        f"input={message.content[:80]!r}"
+                    )
                     reply = "……잠깐, 뭔가 이상하네요. 다시 말해줄 수 있어요?"
+                    # 포인트 차감 전이므로 별도 반환 불필요 — is_leaked 플래그로 처리
+                    is_leaked = True
+                else:
+                    is_leaked = False
             except Exception as e:
                 logger.error(f"Gemini API 오류: {e}")
                 await message.channel.send("……지금은 대답하기 어렵네요. 나중에 다시 말을 걸어줘요.")
@@ -188,6 +195,10 @@ class ChatCog(commands.Cog, name="대화"):
 
         # 민감한 주제 감지 시 관리자 멘션
         if "[ADMIN_REQUIRED]" in reply:
+            logger.warning(
+                f"민감한 주제 감지 [guild={guild_id} user={user_id}] "
+                f"input={message.content[:80]!r}"
+            )
             admins = [m for m in message.guild.members if m.guild_permissions.administrator and not m.bot]
             mentions = " ".join(m.mention for m in admins)
             await message.channel.send(f"그런 이야기는 저한테 하지 말아요. {mentions}")
@@ -196,6 +207,10 @@ class ChatCog(commands.Cog, name="대화"):
         # API 성공 후 포인트 차감
         if not is_admin:
             await deduct_points(guild_id, user_id, config.CHAT_COST)
+            # 프롬프트 유출 발생 시 2포인트 반환
+            if is_leaked:
+                await adjust_points(guild_id, user_id, 2)
+                logger.info(f"프롬프트 유출로 2P 반환 [guild={guild_id} user={user_id}]")
 
         # 히스토리 저장
         await save_chat_pair(guild_id, user_id, message.content, reply, config.CHAT_HISTORY_LIMIT)
