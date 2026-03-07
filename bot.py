@@ -8,9 +8,17 @@ from discord.ext import commands
 import config
 from db.database import init_db
 
+_log_formatter = logging.Formatter("%(asctime)s [%(levelname)s] %(name)s: %(message)s")
+
+_file_handler = logging.FileHandler("kei.log", encoding="utf-8")
+_file_handler.setFormatter(_log_formatter)
+
+_console_handler = logging.StreamHandler()
+_console_handler.setFormatter(_log_formatter)
+
 logging.basicConfig(
     level=logging.INFO,
-    format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
+    handlers=[_file_handler, _console_handler],
 )
 logger = logging.getLogger("kei")
 

@@ -17,6 +17,9 @@ env/
 .idea/
 .claude/
 
+# 로그
+*.log
+
 #기타
 말투참고
 ssh-hosting/
