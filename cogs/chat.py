@@ -213,11 +213,16 @@ class ChatCog(commands.Cog, name="대화"):
             await deduct_points(guild_id, user_id, config.CHAT_COST)
             # 프롬프트 유출 발생 시 2포인트 반환
             if is_leaked:
-                await adjust_points(guild_id, user_id, 2)
+                new_points = await adjust_points(guild_id, user_id, 2)
                 logger.info(f"프롬프트 유출로 2P 반환 [guild={guild_id} user={user_id}]")
+                await message.channel.send(
+                    f"{message.author.mention} +2P 반환. 사유: API 응답 오류 (잔액: {new_points}P)",
+                    delete_after=10,
+                )
 
-        # 히스토리 저장
-        await save_chat_pair(guild_id, user_id, message.content, reply, config.CHAT_HISTORY_LIMIT)
+        # 히스토리 저장 (유출 감지된 경우 저장 안 함 — 오염 방지)
+        if not is_leaked:
+            await save_chat_pair(guild_id, user_id, message.content, reply, config.CHAT_HISTORY_LIMIT)
 
         await message.channel.send(reply)
 
